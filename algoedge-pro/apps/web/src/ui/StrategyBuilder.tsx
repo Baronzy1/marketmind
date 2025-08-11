@@ -1,6 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import ReactFlow, { addEdge, Background, Controls, MiniMap, Node, Edge, Connection } from 'reactflow';
 import 'reactflow/dist/style.css';
+
+export type StrategyBuilderHandle = {
+  getDSL: () => any;
+};
 
 const initialNodes: Node[] = [
   { id: 'ema_fast', position: { x: 50, y: 50 }, data: { label: 'EMA Fast (20)' }, type: 'input' },
@@ -18,7 +22,9 @@ const initialEdges: Edge[] = [
   { id: 'e4', source: 'entry', target: 'exit' },
 ];
 
-export default function StrategyBuilder() {
+type Props = { onChange?: (dsl: any) => void };
+
+const StrategyBuilder = forwardRef<StrategyBuilderHandle, Props>(function StrategyBuilder({ onChange }, ref) {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
 
@@ -42,6 +48,14 @@ export default function StrategyBuilder() {
     ],
   }), [nodes, edges]);
 
+  useEffect(() => {
+    onChange?.(dsl);
+  }, [dsl, onChange]);
+
+  useImperativeHandle(ref, () => ({
+    getDSL: () => dsl,
+  }), [dsl]);
+
   return (
     <div className="rounded-lg border border-neutral-800 p-2">
       <div className="h-[520px]">
@@ -57,4 +71,6 @@ export default function StrategyBuilder() {
       </div>
     </div>
   );
-}
+});
+
+export default StrategyBuilder;
