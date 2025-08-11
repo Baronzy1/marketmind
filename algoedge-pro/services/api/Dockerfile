@@ -2,10 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt /app/requirements.txt
+# Install dependencies
+COPY services/api/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app
+# Copy API code and shared engine
+COPY services/api/ /app/
+COPY python/ /app/python/
 
 ENV PYTHONPATH=/app:/app/python
 

@@ -18,35 +18,31 @@ services:
       - "6379:6379"
 
   api:
-    build: ./services/api
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-algoedge}:${POSTGRES_PASSWORD:-algoedge}@postgres:5432/${POSTGRES_DB:-algoedge}
       REDIS_URL: redis://redis:6379/0
       PYTHONUNBUFFERED: "1"
-    volumes:
-      - ./python:/app/python
-      - ./services/api:/app
     depends_on:
       - postgres
       - redis
     ports:
       - "8000:8000"
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   worker:
-    build: ./services/worker
+    build:
+      context: .
+      dockerfile: services/worker/Dockerfile
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-algoedge}:${POSTGRES_PASSWORD:-algoedge}@postgres:5432/${POSTGRES_DB:-algoedge}
       REDIS_URL: redis://redis:6379/0
       PYTHONUNBUFFERED: "1"
-    volumes:
-      - ./python:/app/python
-      - ./services/api:/app/api
-      - ./services/worker:/app/worker
     depends_on:
       - postgres
       - redis
